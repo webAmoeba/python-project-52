@@ -22,6 +22,15 @@ class CustomUserCreationForm(UserCreationForm):
             "password2",
         )
 
+    def clean_username(self):
+        username = self.cleaned_data["username"]
+        qs = User.objects.exclude(pk=self.instance.pk)
+        if qs.filter(username=username).exists():
+            raise forms.ValidationError(
+                _("User with this username already exists.")
+            )
+        return username
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.first_name = self.cleaned_data["first_name"]
